@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.1.0/dist/leaflet.css"
+        integrity="sha512-wcw6ts8Anuw10Mzh9Ytw4pylW8+NAD4ch3lqm9lzAsTxg0GFeJgoAtxuCLREZSC5lUXdVyo/7yfsqFjQ4S+aKw=="
+        crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.1.0/dist/leaflet.js"
+        integrity="sha512-mNqn2Wg7tSToJhvHcqfzLMU6J4mkOImSPTxVZAdo+lcPlk+GhZmYgACEe0x35K7YzW1zJ7XyJV/TT1MrdXvMcA=="
+        crossorigin=""></script>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        html,
+        body,
+        #map {
+            height: 100%;
+            width: 100vw;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <script>
+        var mymap = L.map('map').setView([0, 0], 2);
+        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: 'OpenStreetMap'
+        }).addTo(mymap);
+    </script>
+    <script>
+        var onlinelist_get_json = '{"code":200,"message":"","returnObject":[{"id":14895,"uid":"942c4fcf-5505-3d53-9aca-e581ffd411d2","name":"GraydonZ","displayName":"GraydonZ","gameMode":0,"height":1.8,"position":{"x":1528.2115478515625,"y":71.0,"z":111.2030029296875},"maxHealth":20,"health":20.0,"ping":15,"isOp":false,"experience":220,"experienceLevel":54},{"id":12676,"uid":"371e5298-c095-3cde-acf7-fe918dedbedf","name":"ArimaKisho00","displayName":"ArimaKisho00","gameMode":0,"height":1.8,"position":{"x":-8832.2646484375,"y":70.0,"z":-4785.05322265625},"maxHealth":20,"health":20.0,"ping":25,"isOp":false,"experience":9,"experienceLevel":8},{"id":19297,"uid":"0b79b9bf-0401-339c-b44b-037b0c57a5e2","name":"TracyRaymond","displayName":"TracyRaymond","gameMode":1,"height":1.8,"position":{"x":-8890.65234375,"y":53.0,"z":-4916.0966796875},"maxHealth":20,"health":20.0,"ping":15,"isOp":true,"experience":0,"experienceLevel":0},{"id":15487,"uid":"44a73882-a8cb-3f12-af44-42d7ae1afb7a","name":"OmittingCord740","displayName":"OmittingCord740","gameMode":1,"height":1.8,"position":{"x":-8882.4052734375,"y":60.252201080322266,"z":-4914.005859375},"maxHealth":20,"health":20.0,"ping":25,"isOp":true,"experience":0,"experienceLevel":0}]}';
+        var onlinelist_array = JSON.parse(onlinelist_get_json);
+        onlinelist_array = onlinelist_array.returnObject;
+        for (i = 0; i < onlinelist_array.length; i++) {
+            var name = onlinelist_array[i].name;
+            var x = onlinelist_array[i].position.x;
+            x = x / 120;
+            var y = onlinelist_array[i].position.y;
+            y = y / 120;
+            var marker = L.marker([x, y]).addTo(mymap);
+            marker.bindTooltip(name).openTooltip();
+            console.log(x, y)
+        }
+    </script>
+</body>
+
+</html>
