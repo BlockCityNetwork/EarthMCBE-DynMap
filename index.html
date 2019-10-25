@@ -28,7 +28,7 @@
     <div id="map"></div>
     <script>
         var mymap = L.map('map').setView([0, 0], 2);
-        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        L.tileLayer('https://api.mapbox.com/styles/v1/earthmcbe/ck24s7poc0imv1dqwv9fev3ap/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZWFydGhtY2JlIiwiYSI6ImNrMThoZHIxZzFxYzAzbnRqZmFsd3Q2azIifQ.3bQMOqJyHZ9C-8IhpAT4Ow', {
             attribution: 'OpenStreetMap'
         }).addTo(mymap);
     </script>
@@ -46,6 +46,12 @@
             marker.bindTooltip(name).openTooltip();
             console.log(x, y)
         }
+
+
+        mymap.on('mousemove', function (e) {
+            console.log((e.latlng.lat * 120).toFixed(0),(e.latlng.lng * 120).toFixed(0))
+        });
+
     </script>
 </body>
 
