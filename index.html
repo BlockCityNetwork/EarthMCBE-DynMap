@@ -9,23 +9,51 @@
     <script src="https://unpkg.com/leaflet@1.1.0/dist/leaflet.js"
         integrity="sha512-mNqn2Wg7tSToJhvHcqfzLMU6J4mkOImSPTxVZAdo+lcPlk+GhZmYgACEe0x35K7YzW1zJ7XyJV/TT1MrdXvMcA=="
         crossorigin=""></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
     <style>
         body {
             padding: 0;
             margin: 0;
         }
 
-        html,
-        body,
         #map {
+            z-index: -1;
+            position: absolute;
+            width: 100%;
             height: 100%;
-            width: 100vw;
+            margin: 0;
+            padding: 0;
         }
     </style>
 </head>
 
 <body>
     <div id="map"></div>
+    <div class="columns">
+        <div class="column is-four-fifths">
+            <div class="box">
+                <article class="media">
+                    <div class="media-content">
+                        <div class="content" id="player_onlinelist">
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+    <div class="columns">
+        <div class="column is-four-fifths">
+            <div class="box">
+                <article class="media">
+                    <div class="media-content">
+                        <div class="content" id="mouse_coordinate">
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
     <script>
         var mymap = L.map('map').setView([0, 0], 2);
         L.tileLayer('https://api.mapbox.com/styles/v1/earthmcbe/ck24s7poc0imv1dqwv9fev3ap/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZWFydGhtY2JlIiwiYSI6ImNrMThoZHIxZzFxYzAzbnRqZmFsd3Q2azIifQ.3bQMOqJyHZ9C-8IhpAT4Ow', {
@@ -45,11 +73,12 @@
             var marker = L.marker([x, y]).addTo(mymap);
             marker.bindTooltip(name).openTooltip();
             console.log(x, y)
+            document.getElementById('player_onlinelist').innerHTML += name + '<br>';
         }
 
 
-        mymap.on('mousemove', function (e) {
-            console.log((e.latlng.lat * 120).toFixed(0),(e.latlng.lng * 120).toFixed(0))
+        mymap.on('mousemove', function (coordinate) {
+            document.getElementById('mouse_coordinate').innerHTML = (coordinate.latlng.lat * 120).toFixed(0) + "," + (coordinate.latlng.lng * 120).toFixed(0)
         });
 
     </script>
