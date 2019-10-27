@@ -74,19 +74,15 @@
                     marker.bindTooltip(name).openTooltip();
                     document.getElementById('player_onlinelist').innerHTML += '<p id="' + name + "," + latitude + "," + longitude + '" onclick="highlight(this.id)">' + name + '</p>';
                 }
-
-
-                mymap.on('mousemove', function (coordinate) {
-                    document.getElementById('mouse_coordinate').innerHTML = (coordinate.latlng.lat * 120).toFixed(0) + "," + (coordinate.latlng.lng * 120).toFixed(0)
-                });
-                function highlight(id) {
-                    var latlng = id.split(",");
-                    console.log(latlng)
-                }
-
+            }
+            mymap.on('mousemove', function (coordinate) {
+                document.getElementById('mouse_coordinate').innerHTML = (coordinate.latlng.lat * 120).toFixed(0) + "," + (coordinate.latlng.lng * 120).toFixed(0)
+            });
+            function highlight(id) {
+                var latlng = id.split(",");
+                console.log(latlng)
             }
         };
-
     </script>
 </body>
 
