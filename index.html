@@ -57,7 +57,7 @@
     </script>
     <script>
         var json_request = new XMLHttpRequest();
-        json_request.open("POST","https://api-server.earthmcbe.space/api/User/GetOnlineList2", true);
+        json_request.open("POST","https://api-server.earthmcbe.space/api/User/GetOnlineList2");
         json_request.send();
         var onlinelist_get_json = json_request.responseText;
         var onlinelist_array = JSON.parse(onlinelist_get_json);
