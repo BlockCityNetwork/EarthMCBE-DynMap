@@ -59,7 +59,7 @@
         var json_request = new XMLHttpRequest();
         json_request.open("POST", "https://api-server.earthmcbe.space/api/User/GetOnlineList2");
         json_request.send();
-        xhr.onreadystatechange = function (ready) {
+        json_request.onreadystatechange = function (ready) {
             if (json_request.readyState == 4 && json_request.status == 200) {
                 var onlinelist_get_json = json_request.responseText;
                 var onlinelist_array = JSON.parse(onlinelist_get_json);
