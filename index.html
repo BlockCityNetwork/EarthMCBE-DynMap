@@ -11,6 +11,7 @@
         crossorigin=""></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <script src="./lib/js/bouncemarker.js"></script>
     <style>
         body {
             padding: 0;
@@ -30,11 +31,12 @@
 
 <body>
     <div id="map"></div>
-    <div style="position: absolute;bottom: 1rem;">
+    <div style="position: absolute;bottom: 1rem;left: 0.5rem;">
         <div class="box">
             <article class="media">
                 <div class="media-content">
                     <div class="content" id="player_onlinelist">
+                        <p>在线人数:0/0</p>
                     </div>
                 </div>
             </article>
@@ -48,41 +50,84 @@
                 </div>
             </article>
         </div>
+        <div class="notification is-info" id="status_notification" style="padding: 1rem">
+            获取在线列表中，请稍后。
+        </div>
     </div>
     <script>
         var mymap = L.map('map').setView([0, 0], 2);
         L.tileLayer('https://api.mapbox.com/styles/v1/earthmcbe/ck24s7poc0imv1dqwv9fev3ap/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZWFydGhtY2JlIiwiYSI6ImNrMThoZHIxZzFxYzAzbnRqZmFsd3Q2azIifQ.3bQMOqJyHZ9C-8IhpAT4Ow', {
             attribution: 'OpenStreetMap'
         }).addTo(mymap);
+        mymap.on('mousemove', function (coordinate) {
+            document.getElementById('mouse_coordinate').innerHTML = (coordinate.latlng.lat * 120).toFixed(0) + "," + (coordinate.latlng.lng * 120).toFixed(0)
+        });
+
+
+        var marker_layer = L.layerGroup();
+        mymap.addLayer(marker_layer);
+
+        function highlight(id) {
+            var latlng = id.split(",");
+            console.log(latlng);
+            mymap.flyTo([latlng[1], latlng[2]], 10);
+        }
     </script>
     <script>
-        var json_request = new XMLHttpRequest();
-        json_request.open("POST", "https://api-server.earthmcbe.space/api/User/GetOnlineList2");
-        json_request.send();
-        json_request.onreadystatechange = function (ready) {
-            if (json_request.readyState == 4 && json_request.status == 200) {
-                var onlinelist_get_json = json_request.responseText;
-                var onlinelist_array = JSON.parse(onlinelist_get_json);
-                onlinelist_array = onlinelist_array.returnObject;
-                for (i = 0; i < onlinelist_array.length; i++) {
-                    var name = onlinelist_array[i].name;
-                    var longitude = onlinelist_array[i].position.x;
-                    longitude = longitude / (120);
-                    var latitude = onlinelist_array[i].position.z;
-                    latitude = latitude / (-120);
-                    var marker = L.marker([latitude, longitude]).addTo(mymap);
-                    marker.bindTooltip(name).openTooltip();
-                    document.getElementById('player_onlinelist').innerHTML += '<p id="' + name + "," + latitude + "," + longitude + '" onclick="highlight(this.id)">' + name + '</p>';
+        var countdown;
+        var status_request = new XMLHttpRequest();
+        status_request.open("POST", "https://api-server.earthmcbe.space/api/Server/GetStatus");
+        status_request.send();
+        status_request.onreadystatechange = function (ready) {
+            if (status_request.readyState == 4 && status_request.status == 200) {
+                document.getElementById('status_notification').className = 'notification is-success';
+                document.getElementById('status_notification').innerText = '获取成功！';
+
+                var status_json = status_request.responseText;
+
+
+                //status_json = '{"code":200,"message":"","returnObject":{"OnlinePlayer":2,"MaxPlayer":20}}';
+
+
+                var status_array = JSON.parse(status_json);
+                status_array = status_array.returnObject;
+                if (status_array.OnlinePlayer == 0) {
+
+                } else {
+                    document.getElementById('player_onlinelist').innerHTML = '<p>在线人数:' + status_array.OnlinePlayer + '/' + status_array.MaxPlayer + '</p>'
+                    var onlinelist_request = new XMLHttpRequest();
+                    onlinelist_request.open("POST", "https://api-server.earthmcbe.space/api/User/GetOnlineList2");
+                    onlinelist_request.send();
+                    onlinelist_request.onreadystatechange = function (ready) {
+                        if (onlinelist_request.readyState == 4 && onlinelist_request.status == 200) {
+                            var onlinelist_get_json = onlinelist_request.responseText;
+
+
+                            //onlinelist_get_json = '{"code":200,"message":"","returnObject":[{"id":14895,"uid":"942c4fcf-5505-3d53-9aca-e581ffd411d2","name":"GraydonZ","displayName":"GraydonZ","gameMode":0,"height":1.8,"position":{"x":1528.2115478515625,"y":71.0,"z":111.2030029296875},"maxHealth":20,"health":20.0,"ping":15,"isOp":false,"experience":220,"experienceLevel":54},{"id":12676,"uid":"371e5298-c095-3cde-acf7-fe918dedbedf","name":"ArimaKisho00","displayName":"ArimaKisho00","gameMode":0,"height":1.8,"position":{"x":-8832.2646484375,"y":70.0,"z":-4785.05322265625},"maxHealth":20,"health":20.0,"ping":25,"isOp":false,"experience":9,"experienceLevel":8},{"id":19297,"uid":"0b79b9bf-0401-339c-b44b-037b0c57a5e2","name":"TracyRaymond","displayName":"TracyRaymond","gameMode":1,"height":1.8,"position":{"x":-8890.65234375,"y":53.0,"z":-4916.0966796875},"maxHealth":20,"health":20.0,"ping":15,"isOp":true,"experience":0,"experienceLevel":0},{"id":15487,"uid":"44a73882-a8cb-3f12-af44-42d7ae1afb7a","name":"OmittingCord740","displayName":"OmittingCord740","gameMode":1,"height":1.8,"position":{"x":-8882.4052734375,"y":60.252201080322266,"z":-4914.005859375},"maxHealth":20,"health":20.0,"ping":25,"isOp":true,"experience":0,"experienceLevel":0}]}';
+
+
+                            var onlinelist_array = JSON.parse(onlinelist_get_json);
+                            onlinelist_array = onlinelist_array.returnObject;
+                            for (i = 0; i < onlinelist_array.length; i++) {
+                                var name = onlinelist_array[i].name;
+                                var longitude = onlinelist_array[i].position.x;
+                                longitude = longitude / (120);
+                                var latitude = onlinelist_array[i].position.z;
+                                latitude = latitude / (-120);
+                                var marker = L.marker([latitude, longitude], {
+                                    bounceOnAdd: true,
+                                    bounceOnAddOptions: { duration: 1000, height: 200, loop: 1 },
+                                }).addTo(marker_layer);
+                                marker.bindTooltip(name).openTooltip();
+                                document.getElementById('player_onlinelist').innerHTML += '<button class="button is-info is-outlined" id="' + name + "," + latitude + "," + longitude + '" onclick="highlight(this.id)">' + name + '</button><br>';
+                                countdown = 60;
+                            }
+                        }
+                    }
+
                 }
             }
-            mymap.on('mousemove', function (coordinate) {
-                document.getElementById('mouse_coordinate').innerHTML = (coordinate.latlng.lat * 120).toFixed(0) + "," + (coordinate.latlng.lng * 120).toFixed(0)
-            });
-            function highlight(id) {
-                var latlng = id.split(",");
-                console.log(latlng)
-            }
-        };
+        }
     </script>
 </body>
 
