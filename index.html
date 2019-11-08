@@ -6,11 +6,17 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.1.0/dist/leaflet.css"
         integrity="sha512-wcw6ts8Anuw10Mzh9Ytw4pylW8+NAD4ch3lqm9lzAsTxg0GFeJgoAtxuCLREZSC5lUXdVyo/7yfsqFjQ4S+aKw=="
         crossorigin="" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+    <link href="./lib/css/animate.min.css">
+    <script src="./lib/js/jquery-3.4.1.min.js"></script>
+    <link rel="stylesheet" href="./lib/css/jquery.webui-popover.min.css">
+    <script src="./lib/js/jquery.webui-popover.min.js"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <script src="./lib/js/notice.js"></script>
+    <link href="./lib/css/noticejs.css" rel="stylesheet" type="text/css">
     <script src="https://unpkg.com/leaflet@1.1.0/dist/leaflet.js"
         integrity="sha512-mNqn2Wg7tSToJhvHcqfzLMU6J4mkOImSPTxVZAdo+lcPlk+GhZmYgACEe0x35K7YzW1zJ7XyJV/TT1MrdXvMcA=="
         crossorigin=""></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
-    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
     <script src="./lib/js/bouncemarker.js"></script>
     <style>
         body {
@@ -30,6 +36,27 @@
 </head>
 
 <body>
+
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item">
+                <img src="./lib/img/logo.png">
+            </a>
+            <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false"
+                data-target="navbarBasicExample">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+            <div class="navbar-menu">
+                <div class="navbar-start">
+                    <a class="navbar-item">
+
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
     <div id="map"></div>
     <div style="position: absolute;bottom: 1rem;left: 0.5rem;">
         <div class="box">
@@ -50,23 +77,33 @@
                 </div>
             </article>
         </div>
-        <div class="notification is-info" id="status_notification" style="padding: 1rem">
-            获取在线列表中，请稍后。
-        </div>
     </div>
+    <img id='translate' src="./lib/img/yandex-translate.svg" onclick="translate_load()"
+        style="vertical-align:top;height:2.5rem;right:1rem;position:absolute;bottom: 1rem;">
     <script>
+        $(translate).webuiPopover({ placement: 'auto', content: '<div id="ytWidget"></div>', closeable: true, animation: 'pop' });
+        function translate_load() {
+            var translate_load_script = document.createElement("script");
+            translate_load_script.type = "text/javascript";
+            translate_load_script.src = "https://translate.yandex.net/website-widget/v1/widget.js?widgetId=ytWidget&pageLang=zh&widgetTheme=light&autoMode=false"
+            document.body.appendChild(translate_load_script);
+        }
+    </script>
+    <script>
+        //地图加载
         var mymap = L.map('map').setView([0, 0], 2);
         L.tileLayer('https://api.mapbox.com/styles/v1/earthmcbe/ck24s7poc0imv1dqwv9fev3ap/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZWFydGhtY2JlIiwiYSI6ImNrMThoZHIxZzFxYzAzbnRqZmFsd3Q2azIifQ.3bQMOqJyHZ9C-8IhpAT4Ow', {
             attribution: 'OpenStreetMap'
         }).addTo(mymap);
+        //坐标展示
         mymap.on('mousemove', function (coordinate) {
             document.getElementById('mouse_coordinate').innerHTML = (coordinate.latlng.lat * 120).toFixed(0) + "," + (coordinate.latlng.lng * 120).toFixed(0)
         });
 
-
+        //marker图层
         var marker_layer = L.layerGroup();
         mymap.addLayer(marker_layer);
-
+        //目前无用途，等待更新
         function highlight(id) {
             var latlng = id.split(",");
             console.log(latlng);
@@ -74,15 +111,51 @@
         }
     </script>
     <script>
-        var countdown;
+        //顶部导航栏代码，无需修改
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // Get all "navbar-burger" elements
+            const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+
+            // Check if there are any navbar burgers
+            if ($navbarBurgers.length > 0) {
+
+                // Add a click event on each of them
+                $navbarBurgers.forEach(el => {
+                    el.addEventListener('click', () => {
+
+                        // Get the target from the "data-target" attribute
+                        const target = el.dataset.target;
+                        const $target = document.getElementById(target);
+
+                        // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+                        el.classList.toggle('is-active');
+                        $target.classList.toggle('is-active');
+
+                    });
+                });
+            }
+
+        });
+    </script>
+    <script>
+        new NoticeJs({
+            timeout: 15,
+            type: 'info',
+            text: '正在获取服务器信息',
+            position: 'topRight',
+        }).show();
         var status_request = new XMLHttpRequest();
         status_request.open("POST", "https://api-server.earthmcbe.space/api/Server/GetStatus");
         status_request.send();
         status_request.onreadystatechange = function (ready) {
             if (status_request.readyState == 4 && status_request.status == 200) {
-                document.getElementById('status_notification').className = 'notification is-success';
-                document.getElementById('status_notification').innerText = '获取成功！';
-
+                new NoticeJs({
+                    timeout: 15,
+                    type: 'success',
+                    text: '获取成功',
+                    position: 'topRight',
+                }).show();
                 var status_json = status_request.responseText;
 
 
