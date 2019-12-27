@@ -92,7 +92,7 @@
     <script>
         //地图加载
         var mymap = L.map('map').setView([0, 0], 2);
-        L.tileLayer('https://api.mapbox.com/styles/v1/earthmcbe/ck24s7poc0imv1dqwv9fev3ap/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZWFydGhtY2JlIiwiYSI6ImNrMThoZHIxZzFxYzAzbnRqZmFsd3Q2azIifQ.3bQMOqJyHZ9C-8IhpAT4Ow', {
+        L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
             attribution: 'OpenStreetMap'
         }).addTo(mymap);
         //坐标展示
@@ -142,7 +142,7 @@
         new NoticeJs({
             timeout: 15,
             type: 'info',
-            text: '正在获取服务器信息',
+            text: '正在获取服务器信息<br>Getting Server Info',
             position: 'topRight',
         }).show();
         var status_request = new XMLHttpRequest();
@@ -153,7 +153,7 @@
                 new NoticeJs({
                     timeout: 15,
                     type: 'success',
-                    text: '获取成功',
+                    text: '获取成功<br>Successed',
                     position: 'topRight',
                 }).show();
                 var status_json = status_request.responseText;
@@ -193,7 +193,6 @@
                                 }).addTo(marker_layer);
                                 marker.bindTooltip(name).openTooltip();
                                 document.getElementById('player_onlinelist').innerHTML += '<button class="button is-info is-outlined" id="' + name + "," + latitude + "," + longitude + '" onclick="highlight(this.id)">' + name + '</button><br>';
-                                countdown = 60;
                             }
                         }
                     }
