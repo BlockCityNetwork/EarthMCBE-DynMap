@@ -6,18 +6,17 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.1.0/dist/leaflet.css"
         integrity="sha512-wcw6ts8Anuw10Mzh9Ytw4pylW8+NAD4ch3lqm9lzAsTxg0GFeJgoAtxuCLREZSC5lUXdVyo/7yfsqFjQ4S+aKw=="
         crossorigin="" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
-    <link href="./lib/css/animate.min.css">
-    <script src="./lib/js/jquery-3.4.1.min.js"></script>
-    <link rel="stylesheet" href="./lib/css/jquery.webui-popover.min.css">
-    <script src="./lib/js/jquery.webui-popover.min.js"></script>
-    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
-    <script src="./lib/js/notice.js"></script>
-    <link href="./lib/css/noticejs.css" rel="stylesheet" type="text/css">
     <script src="https://unpkg.com/leaflet@1.1.0/dist/leaflet.js"
         integrity="sha512-mNqn2Wg7tSToJhvHcqfzLMU6J4mkOImSPTxVZAdo+lcPlk+GhZmYgACEe0x35K7YzW1zJ7XyJV/TT1MrdXvMcA=="
         crossorigin=""></script>
-    <script src="./lib/js/bouncemarker.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+    <script src="lib/js/jquery-3.4.1.min.js"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <script src="lib/js/bouncemarker.js"></script>
+    <script src="lib/js/bulma-toast.min.js"></script>
+    <script src="lib/js/timer.jquery.min.js"></script>
+    <link rel="stylesheet" href="lib/css/animate.min.css">
+    <title>EarthMCBE DynMap</title>
     <style>
         body {
             padding: 0;
@@ -46,25 +45,35 @@
 </head>
 
 <body>
-
     <nav class="navbar" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
-            <a class="navbar-item">
-                <img src="./lib/img/logo.png">
+            <a class="navbar-item" href="https://map.earthmcbe.space">
+                <img src="./lib/img/logo.png" width="112" height="28">
             </a>
+
             <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false"
                 data-target="navbarBasicExample">
                 <span aria-hidden="true"></span>
                 <span aria-hidden="true"></span>
                 <span aria-hidden="true"></span>
             </a>
-            <div class="navbar-menu">
-                <div class="navbar-start">
-                    <a class="navbar-item">
+        </div>
 
-                    </a>
+        <div id="navbarBasicExample" class="navbar-menu">
+
+            <div class="navbar-end">
+                <div class="navbar-item">
+                    <div class="buttons">
+                        <a href="https://earthmcbe.space" class="button is-primary">
+                            Official Website
+                        </a>
+                        <a href="https://docs.earthmcbe.space" class="button is-primary">
+                            Official Docs
+                        </a>
+                    </div>
                 </div>
             </div>
+        </div>
         </div>
     </nav>
     <div id="map"></div>
@@ -73,7 +82,7 @@
             <article class="media">
                 <div class="media-content">
                     <div class="content" id="player_onlinelist">
-                        <p>在线人数:0/0</p>
+                        <p>Online Player:<br>(在线人数):0/0</p>
                     </div>
                 </div>
             </article>
@@ -82,32 +91,23 @@
             <article class="media">
                 <div class="media-content">
                     <div class="content" id="mouse_coordinate">
-                        <p>0,0</p>
+                        <p>X:0,Y:0</p>
                     </div>
                 </div>
             </article>
         </div>
     </div>
-    <img id='translate' src="./lib/img/yandex-translate.svg" onclick="translate_load()"
-        style="vertical-align:top;height:2.5rem;right:1rem;position:absolute;bottom: 1rem;">
-    <script>
-        $(translate).webuiPopover({ placement: 'auto', content: '<div id="ytWidget"></div>', closeable: true, animation: 'pop' });
-        function translate_load() {
-            var translate_load_script = document.createElement("script");
-            translate_load_script.type = "text/javascript";
-            translate_load_script.src = "https://translate.yandex.net/website-widget/v1/widget.js?widgetId=ytWidget&pageLang=zh&widgetTheme=light&autoMode=false"
-            document.body.appendChild(translate_load_script);
-        }
-    </script>
+    <div id="timer" style="display: none;"></div>
     <script>
         //地图加载
         var mymap = L.map('map').setView([0, 0], 2);
-        L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-            attribution: 'OpenStreetMap'
+        L.tileLayer('https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=6170aad10dfd42a38d4d8c709a536f38', {
+            attribution: 'OpenStreetMap',
+            noWrap: true
         }).addTo(mymap);
         //坐标展示
         mymap.on('mousemove', function (coordinate) {
-            document.getElementById('mouse_coordinate').innerHTML = (coordinate.latlng.lat * 120).toFixed(0) + "," + (coordinate.latlng.lng * 120).toFixed(0)
+            document.getElementById('mouse_coordinate').innerHTML = "X:" + (coordinate.latlng.lat * (-120)).toFixed(0) + "," + "Y:" + (coordinate.latlng.lng * 120).toFixed(0)
         });
 
         //marker图层
@@ -119,97 +119,98 @@
             console.log(latlng);
             mymap.flyTo([latlng[1], latlng[2]], 10);
         }
-    </script>
-    <script>
-        //顶部导航栏代码，无需修改
-        document.addEventListener('DOMContentLoaded', () => {
-
-            // Get all "navbar-burger" elements
-            const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
-
-            // Check if there are any navbar burgers
-            if ($navbarBurgers.length > 0) {
-
-                // Add a click event on each of them
-                $navbarBurgers.forEach(el => {
-                    el.addEventListener('click', () => {
-
-                        // Get the target from the "data-target" attribute
-                        const target = el.dataset.target;
-                        const $target = document.getElementById(target);
-
-                        // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
-                        el.classList.toggle('is-active');
-                        $target.classList.toggle('is-active');
-
-                    });
-                });
+        $("#timer").timer({
+            duration: 60,
+            callback: function () {
+                marker_layer.clearLayers();
+                request()
+                $("#timer").timer('reset')
             }
+        })
+        $(document).ready(function () {
 
+            // Check for click events on the navbar burger icon
+            $(".navbar-burger").click(function () {
+
+                // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+                $(".navbar-burger").toggleClass("is-active");
+                $(".navbar-menu").toggleClass("is-active");
+
+            });
         });
     </script>
     <script>
-        new NoticeJs({
-            timeout: 15,
-            type: 'info',
-            text: '正在获取服务器信息<br>Getting Server Info',
-            position: 'topRight',
-        }).show();
-        var status_request = new XMLHttpRequest();
-        status_request.open("POST", "https://api-server.earthmcbe.space/api/Server/GetStatus");
-        status_request.send();
-        status_request.onreadystatechange = function (ready) {
-            if (status_request.readyState == 4 && status_request.status == 200) {
-                new NoticeJs({
-                    timeout: 15,
-                    type: 'success',
-                    text: '获取成功<br>Successed',
-                    position: 'topRight',
-                }).show();
-                var status_json = status_request.responseText;
+        function request() {
+            bulmaToast.toast({
+                message: "Getting Server Info<br>获取服务器信息中",
+                type: "is-info",
+                animate: { in: 'fadeIn', out: 'fadeOut' }
+            })
+            var status_request = new XMLHttpRequest();
+            status_request.open("POST", "https://api-server.earthmcbe.space/api/Server/GetStatus");
+            status_request.send();
+            status_request.onreadystatechange = function (ready) {
+                if (status_request.readyState == 4 && status_request.status == 200) {
+                    bulmaToast.toast({
+                        message: "1-Success<br>1-成功",
+                        type: "is-success",
+                        animate: { in: 'fadeIn', out: 'fadeOut' }
+                    })
+                    var status_json = status_request.responseText;
 
 
-                //status_json = '{"code":200,"message":"","returnObject":{"OnlinePlayer":2,"MaxPlayer":20}}';
+                    status_json = '{"code":200,"message":"","returnObject":{"OnlinePlayer":4,"MaxPlayer":100}}';
 
 
-                var status_array = JSON.parse(status_json);
-                status_array = status_array.returnObject;
-                if (status_array.OnlinePlayer == 0) {
+                    var status_array = JSON.parse(status_json);
+                    status_array = status_array.returnObject;
+                    if (status_array.OnlinePlayer == 0) {
+                        bulmaToast.toast({
+                            message: "No player in server<br>无人在线",
+                            type: "is-primary",
+                            animate: { in: 'fadeIn', out: 'fadeOut' }
+                        })
+                    } else {
+                        bulmaToast.toast({
+                            message: "2-Success<br>2-成功",
+                            type: "is-success",
+                            animate: { in: 'fadeIn', out: 'fadeOut' }
+                        })
+                        document.getElementById('player_onlinelist').innerHTML = '<p>Online Player:<br>(在线人数):' + status_array.OnlinePlayer + '/' + status_array.MaxPlayer + '</p>'
+                        var onlinelist_request = new XMLHttpRequest();
+                        onlinelist_request.open("POST", "https://api-server.earthmcbe.space/api/User/GetOnlineList2");
+                        onlinelist_request.send();
+                        onlinelist_request.onreadystatechange = function (ready) {
+                            if (onlinelist_request.readyState == 4 && onlinelist_request.status == 200) {
+                                var onlinelist_get_json = onlinelist_request.responseText;
 
-                } else {
-                    document.getElementById('player_onlinelist').innerHTML = '<p>在线人数:' + status_array.OnlinePlayer + '/' + status_array.MaxPlayer + '</p>'
-                    var onlinelist_request = new XMLHttpRequest();
-                    onlinelist_request.open("POST", "https://api-server.earthmcbe.space/api/User/GetOnlineList2");
-                    onlinelist_request.send();
-                    onlinelist_request.onreadystatechange = function (ready) {
-                        if (onlinelist_request.readyState == 4 && onlinelist_request.status == 200) {
-                            var onlinelist_get_json = onlinelist_request.responseText;
+
+                                onlinelist_get_json = '{"code":200,"message":"","returnObject":[{"id":14895,"uid":"942c4fcf-5505-3d53-9aca-e581ffd411d2","name":"GraydonZ","displayName":"GraydonZ","gameMode":0,"height":1.8,"position":{"x":1000.2115478515625,"y":71.0,"z":111.2030029296875},"maxHealth":20,"health":20.0,"ping":15,"isOp":false,"experience":220,"experienceLevel":54},{"id":12676,"uid":"371e5298-c095-3cde-acf7-fe918dedbedf","name":"ArimaKisho00","displayName":"ArimaKisho00","gameMode":0,"height":1.8,"position":{"x":-2832.2646484375,"y":70.0,"z":-4785.05322265625},"maxHealth":20,"health":20.0,"ping":25,"isOp":false,"experience":9,"experienceLevel":8},{"id":19297,"uid":"0b79b9bf-0401-339c-b44b-037b0c57a5e2","name":"TracyRaymond","displayName":"TracyRaymond","gameMode":1,"height":1.8,"position":{"x":-8890.65234375,"y":100.0,"z":-2916.0966796875},"maxHealth":20,"health":20.0,"ping":15,"isOp":true,"experience":0,"experienceLevel":0},{"id":15487,"uid":"44a73882-a8cb-3f12-af44-42d7ae1afb7a","name":"OmittingCord740","displayName":"OmittingCord740","gameMode":1,"height":1.8,"position":{"x":-8882.4052734375,"y":60.252201080322266,"z":-4914.005859375},"maxHealth":20,"health":20.0,"ping":25,"isOp":true,"experience":0,"experienceLevel":0}]}';
 
 
-                            //onlinelist_get_json = '{"code":200,"message":"","returnObject":[{"id":14895,"uid":"942c4fcf-5505-3d53-9aca-e581ffd411d2","name":"GraydonZ","displayName":"GraydonZ","gameMode":0,"height":1.8,"position":{"x":1528.2115478515625,"y":71.0,"z":111.2030029296875},"maxHealth":20,"health":20.0,"ping":15,"isOp":false,"experience":220,"experienceLevel":54},{"id":12676,"uid":"371e5298-c095-3cde-acf7-fe918dedbedf","name":"ArimaKisho00","displayName":"ArimaKisho00","gameMode":0,"height":1.8,"position":{"x":-8832.2646484375,"y":70.0,"z":-4785.05322265625},"maxHealth":20,"health":20.0,"ping":25,"isOp":false,"experience":9,"experienceLevel":8},{"id":19297,"uid":"0b79b9bf-0401-339c-b44b-037b0c57a5e2","name":"TracyRaymond","displayName":"TracyRaymond","gameMode":1,"height":1.8,"position":{"x":-8890.65234375,"y":53.0,"z":-4916.0966796875},"maxHealth":20,"health":20.0,"ping":15,"isOp":true,"experience":0,"experienceLevel":0},{"id":15487,"uid":"44a73882-a8cb-3f12-af44-42d7ae1afb7a","name":"OmittingCord740","displayName":"OmittingCord740","gameMode":1,"height":1.8,"position":{"x":-8882.4052734375,"y":60.252201080322266,"z":-4914.005859375},"maxHealth":20,"health":20.0,"ping":25,"isOp":true,"experience":0,"experienceLevel":0}]}';
-
-
-                            var onlinelist_array = JSON.parse(onlinelist_get_json);
-                            onlinelist_array = onlinelist_array.returnObject;
-                            for (i = 0; i < onlinelist_array.length; i++) {
-                                var name = onlinelist_array[i].name;
-                                var longitude = onlinelist_array[i].position.x;
-                                longitude = longitude / (120);
-                                var latitude = onlinelist_array[i].position.z;
-                                latitude = latitude / (-120);
-                                var marker = L.marker([latitude, longitude], {
-                                    bounceOnAdd: true,
-                                    bounceOnAddOptions: { duration: 1000, height: 200, loop: 1 },
-                                }).addTo(marker_layer);
-                                marker.bindTooltip(name).openTooltip();
-                                document.getElementById('player_onlinelist').innerHTML += '<button class="button is-info is-outlined" id="' + name + "," + latitude + "," + longitude + '" onclick="highlight(this.id)">' + name + '</button><br>';
+                                var onlinelist_array = JSON.parse(onlinelist_get_json);
+                                onlinelist_array = onlinelist_array.returnObject;
+                                for (i = 0; i < onlinelist_array.length; i++) {
+                                    var name = onlinelist_array[i].name;
+                                    var longitude = onlinelist_array[i].position.x;
+                                    longitude = longitude / (120);
+                                    var latitude = onlinelist_array[i].position.z;
+                                    latitude = latitude / (-120);
+                                    var marker = L.marker([latitude, longitude], {
+                                        bounceOnAdd: true,
+                                        bounceOnAddOptions: { duration: 1000, height: 200, loop: 1 },
+                                    }).addTo(marker_layer);
+                                    marker.bindTooltip(name).openTooltip();
+                                    document.getElementById('player_onlinelist').innerHTML += '<button class="button is-info is-outlined is-small" id="' + name + "," + latitude + "," + longitude + '" onclick="highlight(this.id)">' + name + '</button><br>';
+                                }
                             }
                         }
-                    }
 
+                    }
                 }
             }
         }
+        request()
     </script>
 </body>
 
