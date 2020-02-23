@@ -147,7 +147,7 @@
                 animate: { in: 'fadeIn', out: 'fadeOut' }
             })
             var status_request = new XMLHttpRequest();
-            status_request.open("POST", "https://api-server.earthmcbe.space/api/Server/GetStatus");
+            status_request.open("POST", "https://forum.earthmcbe.space/server-api/api/Server/GetStatus");
             status_request.send();
             status_request.onreadystatechange = function (ready) {
                 if (status_request.readyState == 4 && status_request.status == 200) {
@@ -178,7 +178,7 @@
                         })
                         document.getElementById('player_onlinelist').innerHTML = '<p>Online Player:<br>(在线人数):' + status_array.OnlinePlayer + '/' + status_array.MaxPlayer + '</p>'
                         var onlinelist_request = new XMLHttpRequest();
-                        onlinelist_request.open("POST", "https://api-server.earthmcbe.space/api/User/GetOnlineList2");
+                        onlinelist_request.open("POST", "https://forum.earthmcbe.space/server-api/api/User/GetOnlineList2");
                         onlinelist_request.send();
                         onlinelist_request.onreadystatechange = function (ready) {
                             if (onlinelist_request.readyState == 4 && onlinelist_request.status == 200) {
